@@ -36,7 +36,7 @@ format(result, entities, entityType, parentEntity) {
                         for (const relation of relations) {
                             // recursively process each relationship fragment
                             // currently assumes that only the immediate parent entity is required for processing dependents
-                            // TODO revisit this when dealing with supplier entity
+                            // revisit this when dealing with supplier entity
                             if (entity[relation]) {
                                 this.format(result, entity[relation], relationshipEntityType, entityRecord);
                             }
