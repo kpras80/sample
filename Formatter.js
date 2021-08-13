@@ -24,7 +24,10 @@ format(result, entities, entityType, parentEntity) {
             });
             result[tableName].statistics.timeTaken += (Date.now() - start);
             const isValid = validatorfn ? validatorfn(entityRecord) : true;
-            if (isValid) {
+            if (!isValid) {
+                    result[tableName].statistics.skipped++;
+                    continue;
+            }
                 result[tableName].statistics.processed++;
                 result[tableName].rows.push(row);
                 // populate dependant tables
@@ -42,9 +45,7 @@ format(result, entities, entityType, parentEntity) {
                         }
                     }
                 }
-            } else {
-                result[tableName].statistics.skipped++;
-            }
+             
         });
     }
     }
