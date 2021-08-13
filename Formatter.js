@@ -33,7 +33,6 @@ format(result, entities, entityType, parentEntity) {
                     for (const relationshipEntityType in relationships) {
                         let relations = relationships[relationshipEntityType];
                         // process each relation fragment in the result
-                        relations = Array.isArray(relations) ? relations : [relations];
                         for (const relation of relations) {
                             // recursively process each relationship fragment
                             // currently assumes that only the immediate parent entity is required for processing dependents
