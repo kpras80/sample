@@ -32,7 +32,9 @@ format(result, entities, entityType, parentEntity) {
                 result[tableName].rows.push(row);
                 // populate dependant tables
                 const relationships = this.mapping.tableMapping[entityType].relations;
-                if (relationships) {
+                if (!relationships) {
+                        continue;
+                }
                     for (const relationshipEntityType in relationships) {
                         let relations = relationships[relationshipEntityType];
                         // process each relation fragment in the result
@@ -44,7 +46,7 @@ format(result, entities, entityType, parentEntity) {
    
                         }
                     }
-                }
+                
              
         });
     }
