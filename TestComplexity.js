@@ -272,9 +272,8 @@ class TaskDatabaseHelper {
 
                 tasks = await this.selectTasks({connectedSystemId: connectedSystem.id}, taskTable, service);
             }
-            if (!tasks.length) {
-                continue;
-            }
+            if (tasks.length) {
+               
             
                 const taskIds = tasks.map(task => task.taskId);
                 const jobRunTable = taskTable === SUPPLIER_TASK ? SUPPLIER_JOB_RUN : COMPANY_JOB_RUN;
@@ -320,7 +319,7 @@ class TaskDatabaseHelper {
                         }
                     });
                 }
-            
+            }
         }
         return queries;
     }
