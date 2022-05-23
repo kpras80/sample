@@ -55,14 +55,43 @@ class TaskDatabaseHelper {
     }
     
     test(entityType) {
-        let v = 1;
-        if (entityType === v) {
+        const MasterDataEntityTypes = {
+    CompanyCode: {
+        label: 'Company Code',
+        id: 1
+    },
+    CostCenter: {
+        label: 'Cost Center',
+        id: 2
+    },
+    GLAccount: {
+        label: 'GL Account',
+        id: 5
+    },
+    BusinessPartner: {
+        label: 'Supplier',
+        id: 8
+    },
+    TaxCode: {
+        label: 'Tax Code',
+        id: 9
+    },
+    WBSElement: {
+        label: 'WBS Element',
+        id: 11
+    },
+    TaxJurisdiction: {
+        label: 'Tax Jurisdiction',
+        id: 12
+    }
+};
+        if (entityType === MasterDataEntityTypes.TaxJurisdiction.id) {
             return 1;
         }
-        if (Number(entityType) === v) {
+        if (Number(entityType) === MasterDataEntityTypes.TaxJurisdiction.id) {
             return 2;
         }
-        if (entityType == v) {
+        if (entityType == MasterDataEntityTypes.TaxJurisdiction.id) {
             return 1;
         }
     }
