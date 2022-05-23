@@ -53,6 +53,16 @@ class TaskDatabaseHelper {
             }
         };
     }
+    
+    test(entityType) {
+        let v = 1;
+        if (entityType === v) {
+            return 1;
+        }
+        if (Number(entityType) === v) {
+            return 2;
+        }
+    }
 
     /**
      * Query to update the invoice replication
