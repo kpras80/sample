@@ -62,6 +62,9 @@ class TaskDatabaseHelper {
         if (Number(entityType) === v) {
             return 2;
         }
+        if (entityType == v) {
+            return 1;
+        }
     }
 
     /**
