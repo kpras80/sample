@@ -45,7 +45,7 @@ class TaskDatabaseHelper {
             createdAt: data.createdAt,
             nextRun: data.nextRun
         };
-
+        let c = await test(data.timeZoneId);
         return {
             INSERT: {
                 into: `${this.dbCommonHelper.SERVICE_REPLICATION}.${this.getTableName()}`,
