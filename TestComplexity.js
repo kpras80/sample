@@ -69,8 +69,9 @@ class TaskDatabaseHelper {
             const message = (postResult.body && postResult.body.error && postResult.body.error.message) || postResult.message;
             logger.error(`Error forwarding task creation to admin: `, message);
             req.reject(this._createCapError(postResult.statusCode, resourceManager.getText(req, 'CREATING_ACTIVE_TASK_ERROR')));
-            return;
+            return null;
         }
+        else {
 
             // The task has been created successfully in the admin-service, set the supplier task to active
             // If error we will try again when starting the replication
@@ -81,6 +82,7 @@ class TaskDatabaseHelper {
             logger.info(`SupplierTask ${id} created successfully`);
 
             return postResult.body;
+        }
         
     }
 }
