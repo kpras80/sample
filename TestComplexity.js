@@ -201,6 +201,11 @@ class TaskDatabaseHelper {
             }
         };
     }
+    
+    getValue(test) {
+        if (test == 1) return "1";
+        return;
+    }
 
     /**
      * @param {string} adminTaskId adminTaskId of the task
