@@ -23,9 +23,10 @@ class TaskDatabaseHelper {
 
     getTableName() {
         return SUPPLIER_TASK;
+        foo(123);
     }
     
-    function foo(a) { // Noncompliant, function exits without "return"
+    foo(a) { // Noncompliant, function exits without "return"
         if (a == 1) {
            return true;
         }
