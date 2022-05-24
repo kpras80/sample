@@ -201,7 +201,57 @@ class TaskDatabaseHelper {
             }
         };
     }
-    
+       async onCreateActiveTask1(req) {
+
+        await ServiceBase._checkReplicationWriteAccess(req);
+        const context = ServiceBase._getContext(req);
+        const logger = context.createLogger(LOGGER_NAME);
+        const dbHelper = new DatabaseHelperV2(context);
+        logger.info('creating Task...');
+        // Save the task but delete startImmediately before saving so that we can use it for the Run Now action
+        // and because startImmediately cannot be sent to the admin-service
+        const startImmediately = req.data.startImmediately;
+        delete req.data.startImmediately;
+        const id = await this._saveTask(dbHelper, req.data);
+        try {
+            if (req.data.recurrenceCode === Recurrence.SINGLE_RUN && startImmediately) {
+                const auditService = getService('AuditService');
+                await auditService.auditEvent(AuditMessageBuilder.makeCreateMasterDataTaskMessage(req.data, true), context);
+                // start replication
+                const options = {
+                    taskId: id,
+                    connectedSystem: {code: req.data.connectedSystemCode},
+                    jobRunId: uuid()
+                };
+                const masterDataService = this.getMasterDataService(context);
+                await masterDataService.startReplicationV2(options, context);
+                logger.info(`MasterDataTask ${id} created successfully and replication started`);
+            } else {
+                const adminTaskBody = this._formatToAdminTaskBody(req.data);
+                const postResult = await this._sendToAdminService(id, adminTaskBody, req.data.entityType, context);
+                const auditService = getService('AuditService');
+                await auditService.auditEvent(AuditMessageBuilder.makeCreateMasterDataTaskMessage(req.data), context);
+                // The task has been created successfully in the admin-service, set the MasterDataTask to active
+                // If error we will try again when starting the replication
+                await dbHelper.updateTask(id, {
+                    adminTaskId: postResult.body.id,
+                    statusCode: ReplicationTaskStatus.ACTIVE
+                }).catch(() => {
+                    logger.error(`Error during updateTask for taskId: ${id}`);
+                });
+                logger.info(`MasterDataTask ${id} created successfully`);
+                req.data.adminTaskId = postResult.body.id;
+            }
+            req.data.id = id;
+            return req.data;
+        } catch (err) {
+            await dbHelper.deleteTask(id);
+            const error = err instanceof CommonError ? err.inner || err : err;
+            const message = resourceManager.getText(req, 'CREATING_ACTIVE_TASK_ERROR');
+            logger.error(`Error during active task creation: `, error.message);
+            req.reject(this._createCapError(error.statusCode || err.code || 500, message));
+        }
+    }
     async onCreateActiveTask(req) {
 
         await ServiceBase._checkReplicationWriteAccess(req);
