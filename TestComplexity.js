@@ -29,7 +29,7 @@ class TaskDatabaseHelper {
         if (a == 1) {
            return true;
         }
-    }
+    } 
     
     cdsServeScheduler(server) {
         server.before('CREATE', 'ActiveTasks', async (req) => this._beforeCreateTasks(req));
