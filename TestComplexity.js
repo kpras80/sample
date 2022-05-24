@@ -53,7 +53,11 @@ class TaskDatabaseHelper {
             }
         };
     }
-    
+    /**
+     * Query blah blaj
+     * @param {string} entityType task id
+     * 
+     */
     test(entityType) {
         const MasterDataEntityTypes = {
     CompanyCode: {
