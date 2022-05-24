@@ -202,11 +202,49 @@ class TaskDatabaseHelper {
         };
     }
     
-    getValue(test) {
-        if (test == 1) return "1";
-        return;
-    }
+    async onCreateActiveTask(req) {
 
+        await ServiceBase._checkReplicationWriteAccess(req);
+        const config = getAppServer().config;
+        const context = ServiceBase._getContext(req);
+        const logger = context.createLogger(LOGGER_NAME);
+
+        const dbHelper = new DatabaseHelper(context);
+
+        logger.info('creating Task...');
+
+        // Save the task
+        const id = uuid();
+        await dbHelper.saveTask(id, req.data);
+        const masterDataService = this.getMasterDataService(context);
+        const actionUrl = masterDataService.getActionURL();
+        req.data.actionUrl = actionUrl.href;
+        req.data.type = scenarioId;
+
+        const taskOptions = this._getTaskOptions(context, config);
+        const serviceRequester = new ServiceRequester(config.urls.admin);
+
+        // forward to admin, as we don't want to manage scp scheduler integration on all ms needing scheduling
+        req.data.associatedTaskId = id;
+        const postResult = await serviceRequester.post(adminActiveTasksHandler, req.data, taskOptions, context);
+        if (postResult.statusCode !== 201) {
+            await dbHelper.deleteSupplierTask(id);
+            const message = (postResult.body && postResult.body.error && postResult.body.error.message) || postResult.message;
+            logger.error(`Error forwarding task creation to admin: `, message);
+            req.reject(this._createCapError(postResult.statusCode, resourceManager.getText(req, 'CREATING_ACTIVE_TASK_ERROR')));
+            return;
+        }
+
+        // The task has been created successfully in the admin-service, set the supplier task to active
+        // If error we will try again when starting the replication
+        await dbHelper.updateTask(id, {adminTaskId: postResult.body.id, statusCode: ReplicationTaskStatus.ACTIVE})
+            .catch(() => {
+                logger.error(`Error during updateTask for taskId: ${id}`);
+            });
+        logger.info(`SupplierTask ${id} created successfully`);
+
+        return postResult.body;
+    }
     /**
      * @param {string} adminTaskId adminTaskId of the task
      */
