@@ -39,6 +39,11 @@ class TaskDatabaseHelper {
         server.on('DELETE', 'ActiveTasks', async (req) => this.onDeleteActiveTask(req));
     }
 
+    getConverter(entities) {
+        return this.options.useBusinessPartnerTables ?
+            new ConverterV2(this.options, entities, this.mapping) :
+            new Converter(this.options, entities, this.mapping);
+    }
     async onCreateActiveTask(req) {
 
         await ServiceBase._checkReplicationWriteAccess(req);
