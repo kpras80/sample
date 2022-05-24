@@ -25,6 +25,12 @@ class TaskDatabaseHelper {
         return SUPPLIER_TASK;
     }
     
+    function foo(a) { // Noncompliant, function exits without "return"
+        if (a == 1) {
+           return true;
+        }
+    }
+    
     cdsServeScheduler(server) {
         server.before('CREATE', 'ActiveTasks', async (req) => this._beforeCreateTasks(req));
         server.on('CREATE', 'ActiveTasks', async (req) => this.onCreateActiveTask(req));
